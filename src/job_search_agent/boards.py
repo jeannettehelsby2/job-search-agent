@@ -4,6 +4,7 @@ import json
 import urllib.request
 
 class JobBoard(ABC):
+
     def __init__(self, company: str, slug: str):
         self.company = company
         self.slug = slug
@@ -13,12 +14,12 @@ class JobBoard(ABC):
         with urllib.request.urlopen(url, timeout=20) as response:
             return json.loads(response.read())
 
-    def fecth (self) -> list [Job]:
+    def fecth(self) -> list [Job]:
         """Download jobs and return them as Job objects."""
 
 class GreenhouseBoard(JobBoard):
-    def fetch (self) -> list[Job]:
 
+    def fetch(self) -> list[Job]:
         url = f"https://boards-api.greenhouse.io/v1/boards/{self.slug}/jobs"
         #data = json.loads(urllib.request.urlopen(url).read())
         data = self._get_json(url)
@@ -32,4 +33,56 @@ class GreenhouseBoard(JobBoard):
                 url=item["absolute_url"],
                 posted=item.get("updated_at", "")[:10], )         
             jobs.append(job)
+        return jobs
+
+class LerverBoard(JobBoard):
+
+    def fetch(self) -> list[Job]:
+        url = f"https://boards-api.greenhouse.io/v1/boards/{self.slug}/jobs"
+        data = self._get_json(url)
+        jobs = []
+        for item in data["jobs"]:
+            job = Job(
+                id=f"greenhouse-{self.slug}-{item['id']}",
+
+                company=self.company,
+                title=item["title"],
+                location=item["location"]["name"],
+                url=item["absolute_url"],
+                posted=item.get("updated_at", "")[:10], )         
+            jobs.append(job)
+        return jobs
+
+class AshyBoard(JobBoard):
+
+    def fetch(self) -> list[Job]:
+        url = f"https://boards-api.greenhouse.io/v1/boards/{self.slug}/jobs"
+        data = self._get_json(url)
+        jobs = []
+        for item in data["jobs"]:
+                job = Job(
+                    id=f"greenhouse-{self.slug}-{item['id']}",
+                    company=self.company,
+                    title=item["title"],
+                    location=item["location"]["name"],
+                    url=item["absolute_url"],
+                    posted=item.get("updated_at", "")[:10], )         
+                jobs.append(job)
+        return jobs
+
+class LerverBoard(JobBoard):
+
+    def fetch (self) -> list[Job]:
+        url = f"https://boards-api.greenhouse.io/v1/boards/{self.slug}/jobs"
+        data = self._get_json(url)
+        jobs = []
+        for item in data["jobs"]:
+                job = Job(
+                    id=f"greenhouse-{self.slug}-{item['id']}",
+                    company=self.company,
+                    title=item["title"],
+                    location=item["location"]["name"],
+                    url=item["absolute_url"],
+                    posted=item.get("updated_at", "")[:10], )         
+                jobs.append(job)
         return jobs
